@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: healthyapp
+      POSTGRES_PASSWORD: dev_password_change_in_prod
+      POSTGRES_DB: healthyapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healthyapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   healthy-app:
     build:
       context: .
@@ -13,4 +30,13 @@ services:
       - /app/.next
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=postgresql://healthyapp:dev_password_change_in_prod@postgres:5432/healthyapp
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USDA_API_KEY=${USDA_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  postgres_data:
