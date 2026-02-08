@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User table (for future authentication)
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  meals          Meal[]
+  progressPhotos ProgressPhoto[]
+}
+
+// Meal entries with AI-analyzed data
+model Meal {
+  id          String         @id @default(cuid())
+  userId      String?
+  user        User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Image storage
+  imageUrl    String
+
+  // AI analysis metadata
+  aiAnalysis  String?        @db.Text // JSON string of OpenAI response
+  confidence  Float?         // AI confidence score
+
+  // Calculated nutrition totals
+  description String
+  calories    Float
+  protein     Float
+  carbs       Float
+  fat         Float
+  fiber       Float?
+  sugar       Float?
+  sodium      Float?
+
+  timestamp   DateTime       @default(now())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  foodItems   MealFoodItem[]
+
+  @@index([userId, timestamp])
+}
+
+// USDA food items cache (normalized, deduplicated)
+model FoodItem {
+  id            String         @id @default(cuid())
+
+  // USDA identifiers
+  fdcId         Int            @unique // USDA FoodData Central ID
+  description   String
+  dataType      String         // Survey, Foundation, Branded, etc.
+
+  // Nutrition per 100g
+  calories      Float
+  protein       Float
+  carbs         Float
+  fat           Float
+  fiber         Float?
+  sugar         Float?
+  sodium        Float?
+
+  // Additional metadata
+  brandOwner    String?
+  ingredients   String?        @db.Text
+  servingSize   Float?
+  servingUnit   String?
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  mealFoodItems MealFoodItem[]
+
+  @@index([fdcId])
+  @@index([description])
+}
+
+// Junction table: many-to-many relationship
+model MealFoodItem {
+  id         String   @id @default(cuid())
+
+  mealId     String
+  meal       Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  foodItemId String
+  foodItem   FoodItem @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
+
+  // Serving information
+  quantity   Float    // e.g., 1.5
+  unit       String   // e.g., "cup", "piece", "serving"
+  grams      Float    // normalized weight in grams
+
+  createdAt  DateTime @default(now())
+
+  @@unique([mealId, foodItemId])
+  @@index([mealId])
+  @@index([foodItemId])
+}
+
+// Progress photos (existing feature, now persisted)
+model ProgressPhoto {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  imageUrl  String
+  date      DateTime @default(now())
+  weight    Float?
+  notes     String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date])
+}
