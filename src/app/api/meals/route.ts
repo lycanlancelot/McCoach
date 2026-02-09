@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       return tx.meal.findUnique({
         where: { id: createdMeal.id },
         include: {
-          mealFoodItems: {
+          foodItems: {
             include: {
               foodItem: true,
             },
@@ -175,7 +175,7 @@ export async function GET(request: NextRequest) {
       prisma.meal.findMany({
         where,
         include: {
-          mealFoodItems: {
+          foodItems: {
             include: {
               foodItem: true,
             },

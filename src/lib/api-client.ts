@@ -43,7 +43,7 @@ export interface Meal {
   timestamp: Date;
   createdAt: Date;
   updatedAt: Date;
-  mealFoodItems?: MealFoodItem[];
+  foodItems?: MealFoodItem[];
 }
 
 export interface MealFoodItem {

@@ -14,7 +14,7 @@ export async function GET(
     const meal = await prisma.meal.findUnique({
       where: { id: params.id },
       include: {
-        mealFoodItems: {
+        foodItems: {
           include: {
             foodItem: true,
           },
@@ -72,7 +72,7 @@ export async function PATCH(
         updatedAt: new Date(),
       },
       include: {
-        mealFoodItems: {
+        foodItems: {
           include: {
             foodItem: true,
           },
