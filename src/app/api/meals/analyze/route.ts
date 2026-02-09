@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { analyzeMealImage } from '@/lib/openai-client';
+import { analyzeMealImage } from '@/lib/claude-vision-client';
 import { searchAndCacheFoods } from '@/lib/usda-client';
 import { calculateNutritionForServing, convertToGrams } from '@/lib/nutrition-calculator';
 import { saveMealImage } from '@/lib/file-storage';
@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
     // Save image to filesystem
     const imageUrl = await saveMealImage(imageFile);
 
-    // Get full URL for OpenAI (needs accessible URL)
+    // Get full URL for Claude Vision (needs accessible URL)
     const fullImageUrl = `${request.nextUrl.origin}${imageUrl}`;
 
-    // Analyze image with OpenAI Vision API
+    // Analyze image with Claude Vision API
     const aiAnalysis = await analyzeMealImage({
       imageUrl: fullImageUrl,
     });
