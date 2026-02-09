@@ -1,0 +1,98 @@
+[
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "grilled chicken salad",
+          "quantity": 1,
+          "unit": "serving",
+          "calories": 350,
+          "protein": 35,
+          "carbs": 20,
+          "fat": 15
+        }
+      ],
+      "totalCalories": 350,
+      "totalProtein": 35,
+      "totalCarbs": 20,
+      "totalFat": 15
+    },
+    "metadata": {
+      "mealType": "lunch",
+      "complexity": "simple",
+      "cuisine": "american",
+      "description": "Grilled chicken salad with vegetables"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "pancakes",
+          "quantity": 3,
+          "unit": "piece",
+          "calories": 450,
+          "protein": 12,
+          "carbs": 75,
+          "fat": 12
+        },
+        {
+          "name": "maple syrup",
+          "quantity": 2,
+          "unit": "tablespoon",
+          "calories": 104,
+          "protein": 0,
+          "carbs": 27,
+          "fat": 0
+        }
+      ],
+      "totalCalories": 554,
+      "totalProtein": 12,
+      "totalCarbs": 102,
+      "totalFat": 12
+    },
+    "metadata": {
+      "mealType": "breakfast",
+      "complexity": "simple",
+      "cuisine": "american",
+      "description": "Stack of pancakes with maple syrup"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "hamburger",
+          "quantity": 1,
+          "unit": "piece",
+          "calories": 540,
+          "protein": 30,
+          "carbs": 45,
+          "fat": 25
+        },
+        {
+          "name": "french fries",
+          "quantity": 1,
+          "unit": "serving",
+          "calories": 365,
+          "protein": 4,
+          "carbs": 48,
+          "fat": 17
+        }
+      ],
+      "totalCalories": 905,
+      "totalProtein": 34,
+      "totalCarbs": 93,
+      "totalFat": 42
+    },
+    "metadata": {
+      "mealType": "lunch",
+      "complexity": "medium",
+      "cuisine": "american",
+      "description": "Hamburger with french fries"
+    }
+  }
+]
