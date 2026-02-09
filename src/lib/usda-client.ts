@@ -32,7 +32,7 @@ export async function searchUSDAFoods(
   try {
     const {
       query,
-      dataType = ['Foundation', 'SR Legacy', 'Survey (FNDDS)', 'Branded'],
+      dataType,
       pageSize = 10,
       pageNumber = 1,
       sortBy = 'dataType.keyword',

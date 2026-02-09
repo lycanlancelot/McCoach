@@ -7,11 +7,13 @@ export const nutritionSearchSchema = z.object({
   query: z.string().min(1, 'Search query is required').max(200, 'Query too long'),
   limit: z
     .string()
+    .nullable()
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : 10))
     .pipe(z.number().int().min(1).max(50)),
   dataType: z
     .string()
+    .nullable()
     .optional()
     .transform((val) => (val ? val.split(',') : undefined)),
 });

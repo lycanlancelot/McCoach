@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!validationResult.success) {
-      const errors = validationResult.error.errors.map((err) => err.message).join(', ');
+      const errors = validationResult.error.issues.map((err) => err.message).join(', ');
       return errorResponse(`Validation error: ${errors}`, 400);
     }
 
