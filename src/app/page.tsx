@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-
-interface MealEntry {
-  id: string;
-  image: string;
-  description: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  timestamp: Date;
-}
+import { useState, useEffect } from 'react';
+import {
+  analyzeMealImage,
+  createMeal,
+  getMeals,
+  deleteMeal,
+  type Meal,
+  type MealAnalysisResult,
+} from '@/lib/api-client';
+import MealAnalysisModal from '@/components/MealAnalysisModal';
+import MealCard from '@/components/MealCard';
+import NutritionSummary from '@/components/NutritionSummary';
 
 interface ProgressPhoto {
   id: string;
@@ -23,46 +23,124 @@ interface ProgressPhoto {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'meals' | 'progress' | 'suggestions'>('meals');
-  const [meals, setMeals] = useState<MealEntry[]>([]);
+  const [meals, setMeals] = useState<Meal[]>([]);
   const [progressPhotos, setProgressPhotos] = useState<ProgressPhoto[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<MealAnalysisResult | null>(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'meal' | 'progress') => {
+  // Fetch meals on mount
+  useEffect(() => {
+    loadMeals();
+  }, []);
+
+  const loadMeals = async () => {
+    try {
+      setIsLoading(true);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const result = await getMeals({
+        startDate: today,
+        limit: 50,
+      });
+
+      setMeals(result.meals);
+    } catch (err) {
+      console.error('Failed to load meals:', err);
+      setError('Failed to load meals. Please refresh the page.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMealImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsAnalyzing(true);
+    setError(null);
+
+    try {
+      // Analyze the meal image with AI
+      const analysis = await analyzeMealImage(file);
+      setAnalysisResult(analysis);
+      setShowAnalysisModal(true);
+    } catch (err) {
+      console.error('Failed to analyze meal:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to analyze meal. Please check your API keys and try again.'
+      );
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleConfirmAnalysis = async (analysis: MealAnalysisResult) => {
+    try {
+      // Create meal in database
+      const meal = await createMeal({
+        imageUrl: analysis.imageUrl,
+        description: analysis.aiAnalysis.notes || 'Analyzed meal',
+        aiAnalysis: analysis.aiAnalysis,
+        confidence: analysis.aiAnalysis.confidence,
+        calories: analysis.totals.calories,
+        protein: analysis.totals.protein,
+        carbs: analysis.totals.carbs,
+        fat: analysis.totals.fat,
+        fiber: analysis.totals.fiber,
+        sugar: analysis.totals.sugar,
+        sodium: analysis.totals.sodium,
+        foodItems: analysis.foodItems,
+      });
+
+      // Add to local state
+      setMeals([meal, ...meals]);
+      setShowAnalysisModal(false);
+      setAnalysisResult(null);
+    } catch (err) {
+      console.error('Failed to save meal:', err);
+      setError('Failed to save meal. Please try again.');
+    }
+  };
+
+  const handleCancelAnalysis = () => {
+    setShowAnalysisModal(false);
+    setAnalysisResult(null);
+  };
+
+  const handleDeleteMeal = async (id: string) => {
+    try {
+      await deleteMeal(id);
+      setMeals(meals.filter((meal) => meal.id !== id));
+    } catch (err) {
+      console.error('Failed to delete meal:', err);
+      setError('Failed to delete meal. Please try again.');
+    }
+  };
+
+  const handleProgressImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const imageUrl = reader.result as string;
-        if (type === 'meal') {
-          const newMeal: MealEntry = {
-            id: Date.now().toString(),
-            image: imageUrl,
-            description: 'Uploaded meal',
-            calories: Math.floor(Math.random() * 500) + 200,
-            protein: Math.floor(Math.random() * 30) + 10,
-            carbs: Math.floor(Math.random() * 50) + 20,
-            fat: Math.floor(Math.random() * 20) + 5,
-            timestamp: new Date(),
-          };
-          setMeals([newMeal, ...meals]);
-        } else {
-          const newProgress: ProgressPhoto = {
-            id: Date.now().toString(),
-            image: imageUrl,
-            date: new Date(),
-            notes: 'Progress photo',
-          };
-          setProgressPhotos([newProgress, ...progressPhotos]);
-        }
+        const newProgress: ProgressPhoto = {
+          id: Date.now().toString(),
+          image: imageUrl,
+          date: new Date(),
+          notes: 'Progress photo',
+        };
+        setProgressPhotos([newProgress, ...progressPhotos]);
       };
       reader.readAsDataURL(file);
     }
   };
-
-  const totalCalories = meals.reduce((sum, meal) => sum + meal.calories, 0);
-  const totalProtein = meals.reduce((sum, meal) => sum + meal.protein, 0);
-  const totalCarbs = meals.reduce((sum, meal) => sum + meal.carbs, 0);
-  const totalFat = meals.reduce((sum, meal) => sum + meal.fat, 0);
 
   const suggestions = [
     {
@@ -103,7 +181,7 @@ export default function Home() {
       <header className="bg-white shadow-sm border-b border-green-100">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold text-green-600">🌿 Healthy App</h1>
-          <p className="text-gray-600 mt-1">Track your nutrition & fitness journey</p>
+          <p className="text-gray-600 mt-1">Track your nutrition & fitness journey with AI</p>
         </div>
       </header>
 
@@ -133,79 +211,87 @@ export default function Home() {
       </nav>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex justify-between items-center">
+            <p className="text-red-800 text-sm">{error}</p>
+            <button
+              onClick={() => setError(null)}
+              className="text-red-600 hover:text-red-800"
+              aria-label="Dismiss error"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Meals Tab */}
         {activeTab === 'meals' && (
           <div className="space-y-6">
-            {/* Daily Summary */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Today's Nutrition</h2>
-              <div className="grid grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-orange-50 rounded-xl">
-                  <p className="text-2xl font-bold text-orange-600">{totalCalories}</p>
-                  <p className="text-sm text-gray-600">Calories</p>
-                </div>
-                <div className="text-center p-4 bg-red-50 rounded-xl">
-                  <p className="text-2xl font-bold text-red-600">{totalProtein}g</p>
-                  <p className="text-sm text-gray-600">Protein</p>
-                </div>
-                <div className="text-center p-4 bg-yellow-50 rounded-xl">
-                  <p className="text-2xl font-bold text-yellow-600">{totalCarbs}g</p>
-                  <p className="text-sm text-gray-600">Carbs</p>
-                </div>
-                <div className="text-center p-4 bg-purple-50 rounded-xl">
-                  <p className="text-2xl font-bold text-purple-600">{totalFat}g</p>
-                  <p className="text-sm text-gray-600">Fat</p>
-                </div>
-              </div>
-            </div>
+            {/* Nutrition Summary */}
+            <NutritionSummary meals={meals} />
 
             {/* Upload Button */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-green-300 rounded-xl cursor-pointer bg-green-50 hover:bg-green-100 transition-colors">
+              <label
+                className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                  isAnalyzing
+                    ? 'border-gray-300 bg-gray-50'
+                    : 'border-green-300 bg-green-50 hover:bg-green-100'
+                }`}
+              >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <span className="text-4xl mb-2">📷</span>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-semibold text-green-600">Click to upload</span> your meal photo
-                  </p>
+                  {isAnalyzing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mb-2"></div>
+                      <p className="text-sm text-gray-600">Analyzing your meal with AI...</p>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-4xl mb-2">📷</span>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-semibold text-green-600">Click to upload</span> your
+                        meal photo
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">AI will identify foods & nutrition</p>
+                    </>
+                  )}
                 </div>
                 <input
                   type="file"
                   className="hidden"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'meal')}
+                  onChange={handleMealImageUpload}
+                  disabled={isAnalyzing}
                 />
               </label>
             </div>
 
             {/* Meal List */}
-            <div className="space-y-4">
-              {meals.map((meal) => (
-                <div key={meal.id} className="bg-white rounded-2xl shadow-lg p-4 flex gap-4">
-                  <img
-                    src={meal.image}
-                    alt="Meal"
-                    className="w-24 h-24 object-cover rounded-xl"
-                  />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-800">{meal.description}</p>
-                    <p className="text-sm text-gray-500">
-                      {meal.timestamp.toLocaleTimeString()}
-                    </p>
-                    <div className="flex gap-3 mt-2 text-xs">
-                      <span className="text-orange-600">{meal.calories} cal</span>
-                      <span className="text-red-600">{meal.protein}g protein</span>
-                      <span className="text-yellow-600">{meal.carbs}g carbs</span>
-                      <span className="text-purple-600">{meal.fat}g fat</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {meals.length === 0 && (
-                <p className="text-center text-gray-500 py-8">
-                  No meals logged yet. Upload your first meal photo! 🍽️
-                </p>
-              )}
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {meals.map((meal) => (
+                  <MealCard key={meal.id} meal={meal} onDelete={handleDeleteMeal} />
+                ))}
+              </div>
+            )}
+
+            {!isLoading && meals.length === 0 && (
+              <p className="text-center text-gray-500 py-8">
+                No meals logged yet. Upload your first meal photo! 🍽️
+              </p>
+            )}
           </div>
         )}
 
@@ -218,14 +304,15 @@ export default function Home() {
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <span className="text-4xl mb-2">💪</span>
                   <p className="text-sm text-gray-600">
-                    <span className="font-semibold text-blue-600">Click to upload</span> your progress photo
+                    <span className="font-semibold text-blue-600">Click to upload</span> your
+                    progress photo
                   </p>
                 </div>
                 <input
                   type="file"
                   className="hidden"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'progress')}
+                  onChange={handleProgressImageUpload}
                 />
               </label>
             </div>
@@ -238,15 +325,9 @@ export default function Home() {
                   className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
                   onClick={() => setSelectedImage(photo.image)}
                 >
-                  <img
-                    src={photo.image}
-                    alt="Progress"
-                    className="w-full h-48 object-cover"
-                  />
+                  <img src={photo.image} alt="Progress" className="w-full h-48 object-cover" />
                   <div className="p-3">
-                    <p className="text-sm text-gray-600">
-                      {photo.date.toLocaleDateString()}
-                    </p>
+                    <p className="text-sm text-gray-600">{photo.date.toLocaleDateString()}</p>
                   </div>
                 </div>
               ))}
@@ -262,9 +343,7 @@ export default function Home() {
         {/* Suggestions Tab */}
         {activeTab === 'suggestions' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Personalized Tips for You
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Personalized Tips for You</h2>
             {suggestions.map((suggestion, index) => (
               <div
                 key={index}
@@ -272,13 +351,11 @@ export default function Home() {
                   suggestion.type === 'nutrition'
                     ? 'border-green-500'
                     : suggestion.type === 'workout'
-                    ? 'border-blue-500'
-                    : 'border-purple-500'
+                      ? 'border-blue-500'
+                      : 'border-purple-500'
                 }`}
               >
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {suggestion.title}
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-800">{suggestion.title}</h3>
                 <p className="text-gray-600 mt-2">{suggestion.description}</p>
               </div>
             ))}
@@ -286,24 +363,31 @@ export default function Home() {
         )}
       </main>
 
+      {/* Analysis Modal */}
+      {analysisResult && (
+        <MealAnalysisModal
+          analysis={analysisResult}
+          isOpen={showAnalysisModal}
+          onClose={() => setShowAnalysisModal(false)}
+          onConfirm={handleConfirmAnalysis}
+          onCancel={handleCancelAnalysis}
+        />
+      )}
+
       {/* Image Modal */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <img
-            src={selectedImage}
-            alt="Full size"
-            className="max-w-full max-h-full rounded-lg"
-          />
+          <img src={selectedImage} alt="Full size" className="max-w-full max-h-full rounded-lg" />
         </div>
       )}
 
       {/* Footer */}
       <footer className="bg-white border-t mt-8">
         <div className="max-w-4xl mx-auto px-4 py-6 text-center text-gray-500 text-sm">
-          🌿 Healthy App - Ava's Idea • Built with ❤️
+          🌿 Healthy App - AI-Powered Nutrition Tracking • Built with ❤️
         </div>
       </footer>
     </div>
