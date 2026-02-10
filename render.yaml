@@ -1,0 +1,58 @@
+# Render Blueprint for Healthy App
+# This deploys:
+# 1. PostgreSQL database
+# 2. Next.js web service (Docker)
+
+databases:
+  - name: healthy-app-db
+    databaseName: healthyapp
+    user: healthyapp
+    plan: free # Options: free, starter, standard, pro
+    region: oregon # Choose: oregon, frankfurt, singapore, ohio
+
+services:
+  - type: web
+    name: healthy-app
+    runtime: docker
+    plan: starter # Options: free (suspended after 15min), starter ($7/mo), standard, pro
+    region: oregon # Should match database region for low latency
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+
+    # Health check
+    healthCheckPath: /api/health
+
+    # Environment variables
+    envVars:
+      # Database connection (auto-populated by Render)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: healthy-app-db
+          property: connectionString
+
+      # AI API Key (REQUIRED - Add manually in Render Dashboard)
+      - key: ANTHROPIC_API_KEY
+        sync: false # You must add this in Render Dashboard
+
+      # Optional: USDA API Key
+      - key: USDA_API_KEY
+        value: "" # Optional, leave empty if you don't have one
+
+      # Production settings
+      - key: NODE_ENV
+        value: production
+
+      - key: CLAUDE_MODEL
+        value: claude-sonnet-4-20250514
+
+      # Server configuration
+      - key: PORT
+        value: 3000
+
+      - key: HOSTNAME
+        value: 0.0.0.0
+
+# Pre-deploy commands (run migrations)
+# These run automatically before each deploy
+# Add to package.json scripts:
+# "render-build": "npm run build && npx prisma generate && npx prisma migrate deploy"
