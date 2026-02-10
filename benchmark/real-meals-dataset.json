@@ -1,0 +1,569 @@
+[
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "scrambled eggs",
+          "quantity": 3,
+          "unit": "large",
+          "calories": 210,
+          "protein": 18,
+          "carbs": 3,
+          "fat": 15
+        },
+        {
+          "name": "whole wheat toast",
+          "quantity": 2,
+          "unit": "slice",
+          "calories": 160,
+          "protein": 8,
+          "carbs": 28,
+          "fat": 2
+        },
+        {
+          "name": "butter",
+          "quantity": 1,
+          "unit": "tbsp",
+          "calories": 102,
+          "protein": 0,
+          "carbs": 0,
+          "fat": 12
+        }
+      ],
+      "totalCalories": 472,
+      "totalProtein": 26,
+      "totalCarbs": 31,
+      "totalFat": 29
+    },
+    "metadata": {
+      "mealType": "breakfast",
+      "complexity": "simple",
+      "cuisine": "american",
+      "description": "Scrambled eggs with whole wheat toast and butter",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "grilled chicken breast",
+          "quantity": 6,
+          "unit": "oz",
+          "calories": 280,
+          "protein": 53,
+          "carbs": 0,
+          "fat": 6
+        },
+        {
+          "name": "mixed salad greens",
+          "quantity": 2,
+          "unit": "cup",
+          "calories": 20,
+          "protein": 2,
+          "carbs": 4,
+          "fat": 0
+        },
+        {
+          "name": "cherry tomatoes",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 27,
+          "protein": 1,
+          "carbs": 6,
+          "fat": 0
+        },
+        {
+          "name": "olive oil dressing",
+          "quantity": 2,
+          "unit": "tbsp",
+          "calories": 120,
+          "protein": 0,
+          "carbs": 0,
+          "fat": 14
+        }
+      ],
+      "totalCalories": 447,
+      "totalProtein": 56,
+      "totalCarbs": 10,
+      "totalFat": 20
+    },
+    "metadata": {
+      "mealType": "lunch",
+      "complexity": "simple",
+      "cuisine": "american",
+      "description": "Grilled chicken salad with mixed greens and vegetables",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "grilled salmon",
+          "quantity": 6,
+          "unit": "oz",
+          "calories": 367,
+          "protein": 39,
+          "carbs": 0,
+          "fat": 22
+        },
+        {
+          "name": "brown rice",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 218,
+          "protein": 5,
+          "carbs": 46,
+          "fat": 2
+        },
+        {
+          "name": "steamed broccoli",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 55,
+          "protein": 4,
+          "carbs": 11,
+          "fat": 1
+        },
+        {
+          "name": "carrots",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 27,
+          "protein": 1,
+          "carbs": 6,
+          "fat": 0
+        }
+      ],
+      "totalCalories": 667,
+      "totalProtein": 49,
+      "totalCarbs": 63,
+      "totalFat": 25
+    },
+    "metadata": {
+      "mealType": "dinner",
+      "complexity": "medium",
+      "cuisine": "healthy",
+      "description": "Grilled salmon with brown rice and steamed vegetables",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "strawberries",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 49,
+          "protein": 1,
+          "carbs": 12,
+          "fat": 0
+        },
+        {
+          "name": "blueberries",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 42,
+          "protein": 1,
+          "carbs": 11,
+          "fat": 0
+        },
+        {
+          "name": "banana",
+          "quantity": 1,
+          "unit": "medium",
+          "calories": 105,
+          "protein": 1,
+          "carbs": 27,
+          "fat": 0
+        },
+        {
+          "name": "greek yogurt",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 100,
+          "protein": 17,
+          "carbs": 6,
+          "fat": 0
+        }
+      ],
+      "totalCalories": 296,
+      "totalProtein": 20,
+      "totalCarbs": 56,
+      "totalFat": 0
+    },
+    "metadata": {
+      "mealType": "snack",
+      "complexity": "simple",
+      "cuisine": "healthy",
+      "description": "Fresh fruit bowl with Greek yogurt",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "oatmeal",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 166,
+          "protein": 6,
+          "carbs": 28,
+          "fat": 4
+        },
+        {
+          "name": "blueberries",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 42,
+          "protein": 1,
+          "carbs": 11,
+          "fat": 0
+        },
+        {
+          "name": "honey",
+          "quantity": 1,
+          "unit": "tbsp",
+          "calories": 64,
+          "protein": 0,
+          "carbs": 17,
+          "fat": 0
+        },
+        {
+          "name": "almonds",
+          "quantity": 10,
+          "unit": "piece",
+          "calories": 69,
+          "protein": 3,
+          "carbs": 2,
+          "fat": 6
+        }
+      ],
+      "totalCalories": 341,
+      "totalProtein": 10,
+      "totalCarbs": 58,
+      "totalFat": 10
+    },
+    "metadata": {
+      "mealType": "breakfast",
+      "complexity": "simple",
+      "cuisine": "healthy",
+      "description": "Oatmeal bowl with blueberries, honey, and almonds",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "quinoa",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 222,
+          "protein": 8,
+          "carbs": 39,
+          "fat": 4
+        },
+        {
+          "name": "chickpeas",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 134,
+          "protein": 7,
+          "carbs": 22,
+          "fat": 2
+        },
+        {
+          "name": "sweet potato",
+          "quantity": 1,
+          "unit": "medium",
+          "calories": 112,
+          "protein": 2,
+          "carbs": 26,
+          "fat": 0
+        },
+        {
+          "name": "kale",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 33,
+          "protein": 3,
+          "carbs": 6,
+          "fat": 1
+        },
+        {
+          "name": "avocado",
+          "quantity": 0.5,
+          "unit": "medium",
+          "calories": 120,
+          "protein": 1,
+          "carbs": 6,
+          "fat": 11
+        },
+        {
+          "name": "tahini dressing",
+          "quantity": 2,
+          "unit": "tbsp",
+          "calories": 178,
+          "protein": 5,
+          "carbs": 6,
+          "fat": 16
+        }
+      ],
+      "totalCalories": 799,
+      "totalProtein": 26,
+      "totalCarbs": 105,
+      "totalFat": 34
+    },
+    "metadata": {
+      "mealType": "lunch",
+      "complexity": "medium",
+      "cuisine": "healthy",
+      "description": "Buddha bowl with quinoa, chickpeas, sweet potato, and tahini",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "spaghetti",
+          "quantity": 2,
+          "unit": "cup",
+          "calories": 440,
+          "protein": 16,
+          "carbs": 86,
+          "fat": 3
+        },
+        {
+          "name": "ground beef sauce",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 280,
+          "protein": 22,
+          "carbs": 8,
+          "fat": 18
+        },
+        {
+          "name": "parmesan cheese",
+          "quantity": 2,
+          "unit": "tbsp",
+          "calories": 43,
+          "protein": 4,
+          "carbs": 0,
+          "fat": 3
+        }
+      ],
+      "totalCalories": 763,
+      "totalProtein": 42,
+      "totalCarbs": 94,
+      "totalFat": 24
+    },
+    "metadata": {
+      "mealType": "dinner",
+      "complexity": "simple",
+      "cuisine": "italian",
+      "description": "Spaghetti with meat sauce and parmesan",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "whole grain bread",
+          "quantity": 2,
+          "unit": "slice",
+          "calories": 180,
+          "protein": 10,
+          "carbs": 30,
+          "fat": 2
+        },
+        {
+          "name": "avocado",
+          "quantity": 1,
+          "unit": "medium",
+          "calories": 240,
+          "protein": 3,
+          "carbs": 12,
+          "fat": 22
+        },
+        {
+          "name": "poached egg",
+          "quantity": 2,
+          "unit": "large",
+          "calories": 140,
+          "protein": 12,
+          "carbs": 2,
+          "fat": 10
+        },
+        {
+          "name": "cherry tomatoes",
+          "quantity": 0.25,
+          "unit": "cup",
+          "calories": 13,
+          "protein": 1,
+          "carbs": 3,
+          "fat": 0
+        }
+      ],
+      "totalCalories": 573,
+      "totalProtein": 26,
+      "totalCarbs": 47,
+      "totalFat": 34
+    },
+    "metadata": {
+      "mealType": "breakfast",
+      "complexity": "medium",
+      "cuisine": "modern",
+      "description": "Avocado toast with poached eggs and cherry tomatoes",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "sushi rice",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 200,
+          "protein": 4,
+          "carbs": 45,
+          "fat": 0
+        },
+        {
+          "name": "raw tuna",
+          "quantity": 4,
+          "unit": "oz",
+          "calories": 122,
+          "protein": 26,
+          "carbs": 0,
+          "fat": 1
+        },
+        {
+          "name": "edamame",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 95,
+          "protein": 8,
+          "carbs": 8,
+          "fat": 4
+        },
+        {
+          "name": "cucumber",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 8,
+          "protein": 0,
+          "carbs": 2,
+          "fat": 0
+        },
+        {
+          "name": "seaweed salad",
+          "quantity": 0.5,
+          "unit": "cup",
+          "calories": 35,
+          "protein": 1,
+          "carbs": 7,
+          "fat": 1
+        },
+        {
+          "name": "soy sauce",
+          "quantity": 1,
+          "unit": "tbsp",
+          "calories": 11,
+          "protein": 1,
+          "carbs": 1,
+          "fat": 0
+        },
+        {
+          "name": "sesame seeds",
+          "quantity": 1,
+          "unit": "tsp",
+          "calories": 17,
+          "protein": 1,
+          "carbs": 1,
+          "fat": 2
+        }
+      ],
+      "totalCalories": 488,
+      "totalProtein": 41,
+      "totalCarbs": 64,
+      "totalFat": 8
+    },
+    "metadata": {
+      "mealType": "lunch",
+      "complexity": "medium",
+      "cuisine": "japanese",
+      "description": "Tuna poke bowl with rice, edamame, and vegetables",
+      "source": "unsplash"
+    }
+  },
+  {
+    "imageUrl": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800",
+    "groundTruth": {
+      "foods": [
+        {
+          "name": "chicken breast",
+          "quantity": 6,
+          "unit": "oz",
+          "calories": 280,
+          "protein": 53,
+          "carbs": 0,
+          "fat": 6
+        },
+        {
+          "name": "mixed vegetables",
+          "quantity": 2,
+          "unit": "cup",
+          "calories": 88,
+          "protein": 4,
+          "carbs": 18,
+          "fat": 0
+        },
+        {
+          "name": "white rice",
+          "quantity": 1,
+          "unit": "cup",
+          "calories": 206,
+          "protein": 4,
+          "carbs": 45,
+          "fat": 0
+        },
+        {
+          "name": "stir fry sauce",
+          "quantity": 2,
+          "unit": "tbsp",
+          "calories": 40,
+          "protein": 1,
+          "carbs": 8,
+          "fat": 1
+        }
+      ],
+      "totalCalories": 614,
+      "totalProtein": 62,
+      "totalCarbs": 71,
+      "totalFat": 7
+    },
+    "metadata": {
+      "mealType": "dinner",
+      "complexity": "medium",
+      "cuisine": "asian",
+      "description": "Chicken stir fry with mixed vegetables and rice",
+      "source": "unsplash"
+    }
+  }
+]

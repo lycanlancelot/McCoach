@@ -2,7 +2,7 @@
 
 /**
  * Load benchmark dataset into the database
- * Usage: npx tsx scripts/load-benchmark.ts
+ * Usage: npx tsx scripts/load-benchmark.ts [--file=real-meals-dataset.json]
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -18,6 +18,11 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const fileArg = args.find(arg => arg.startsWith('--file='));
+const datasetFilename = fileArg ? fileArg.split('=')[1] : 'sample-dataset.json';
+
 const pool = new Pool({ connectionString: DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
@@ -26,8 +31,15 @@ async function loadBenchmark() {
   try {
     console.log('📊 Loading benchmark dataset...\n');
 
-    // Read sample dataset
-    const datasetPath = path.join(process.cwd(), 'benchmark', 'sample-dataset.json');
+    // Read dataset
+    const datasetPath = path.join(process.cwd(), 'benchmark', datasetFilename);
+
+    if (!fs.existsSync(datasetPath)) {
+      console.error(`❌ Dataset file not found: ${datasetPath}`);
+      process.exit(1);
+    }
+
+    console.log(`📁 Loading from: ${datasetFilename}\n`);
     const datasetContent = fs.readFileSync(datasetPath, 'utf-8');
     const dataset = JSON.parse(datasetContent);
 

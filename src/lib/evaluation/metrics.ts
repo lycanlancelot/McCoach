@@ -116,7 +116,7 @@ export function calculateMetrics(
   const calorieAccuracy = Math.max(0, 1 - calorieError);
   const proteinAccuracy = Math.max(0, 1 - proteinError);
   const carbsAccuracy = Math.max(0, 1 - carbsError);
-  const fatAccuracy = Math.max(0, 1 - fatAccuracy);
+  const fatAccuracy = Math.max(0, 1 - fatError);
 
   // 4. Overall Score (weighted average)
   const overallScore =

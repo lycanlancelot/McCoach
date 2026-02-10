@@ -1,0 +1,2924 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutrition AI Evaluation Report</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2rem;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-info {
+      color: #6b7280;
+      margin-top: 1rem;
+    }
+
+    .summary-section {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-subtitle {
+      color: #6b7280;
+      margin-bottom: 1.5rem;
+    }
+
+    .summary-grid, .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .metric-card {
+      background: #f9fafb;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      border: 2px solid #e5e7eb;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .metric-label {
+      font-size: 0.875rem;
+      color: #6b7280;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-subtitle {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-bottom: 0.75rem;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.75rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .result-header h2 {
+      font-size: 1.75rem;
+    }
+
+    .overall-score {
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .result-content {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .image-section {
+      text-align: center;
+    }
+
+    .meal-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin-bottom: 1rem;
+    }
+
+    .ai-notes {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: left;
+      margin-top: 1rem;
+    }
+
+    .detailed-section {
+      margin-top: 1.5rem;
+    }
+
+    .detailed-section h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      color: #374151;
+    }
+
+    .food-comparison {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .comparison-column h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .food-list {
+      list-style: none;
+      background: #f9fafb;
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+
+    .food-list li {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .food-list li:last-child {
+      border-bottom: none;
+    }
+
+    .food-name {
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .food-quantity {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .food-confidence {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .nutrition-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #f9fafb;
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    .nutrition-table th {
+      background: #374151;
+      color: white;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .nutrition-table td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .nutrition-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .diff-over {
+      color: #dc2626;
+    }
+
+    .diff-under {
+      color: #2563eb;
+    }
+
+    .error-section {
+      background: #fef2f2;
+      border-left: 4px solid #dc2626;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .error-section h3 {
+      color: #dc2626;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-section ul {
+      margin-left: 1.5rem;
+      color: #991b1b;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .result-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🍽️ Nutrition AI Evaluation Report</h1>
+      <div class="header-info">
+        <p><strong>Model:</strong> claude-sonnet-4-20250514</p>
+        <p><strong>Generated:</strong> 2/10/2026, 2:21:54 AM</p>
+      </div>
+    </div>
+
+    
+    <div class="summary-section">
+      <h2>📈 Overall Performance Summary</h2>
+      <p class="summary-subtitle">
+        Evaluated 10 meals with average AI confidence of 86.1%
+      </p>
+
+      <div class="summary-grid">
+        
+    <div class="metric-card">
+      <div class="metric-label">Overall Score</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 35.1%
+      </div>
+      <div class="metric-subtitle">Weighted average across all metrics</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 35.12264468789192%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+        
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 23.8%
+      </div>
+      <div class="metric-subtitle">Precision: 31.7%, Recall: 23.1%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 23.843537414965986%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+        
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 34.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 632.6%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 34.04761904761905%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+        
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 51.2%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 51.236480025399366%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+        
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 62.8%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 62.78111722523369%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+        
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 53.4%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 53.425526509806055%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+        
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 56.7%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 56.74197883512026%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+        
+    <div class="metric-card">
+      <div class="metric-label">Detection Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 23.1%
+      </div>
+      <div class="metric-subtitle">% of actual foods found</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 23.12925170068027%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+      </div>
+    </div>
+  
+
+    <h2 style="color: white; margin: 2rem 0 1rem; font-size: 1.8rem;">📸 Individual Meal Evaluations</h2>
+
+    
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #1</h2>
+        <div class="overall-score" style="background: #991b1b">
+          🔴 Overall: 25.8%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800" alt="Meal 1" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> This appears to be avocado toast topped with a fried egg. The bread looks like a dense, seeded whole grain variety. The egg appears to be sunny-side up with a runny yolk. There's a green spread visible under the egg which appears to be mashed avocado, and the dish is seasoned with what looks like red pepper flakes and black pepper.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 100.0%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 85.9%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 85.90042372881356%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 40.4%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 40.38461538461539%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 55.7%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 55.70689655172414%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (5 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">whole grain bread slice</span>
+        <span class="food-quantity">1 slice</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">fried egg</span>
+        <span class="food-quantity">1 large egg</span>
+        <span class="food-confidence" style="color: #10b981">
+          95.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">avocado spread</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">red pepper flakes</span>
+        <span class="food-quantity">0.25 tsp</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          70.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">black pepper</span>
+        <span class="food-quantity">0.125 tsp</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (3 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">scrambled eggs</span>
+        <span class="food-quantity">3 large</span>
+      </li>
+    
+      <li>
+        <span class="food-name">whole wheat toast</span>
+        <span class="food-quantity">2 slice</span>
+      </li>
+    
+      <li>
+        <span class="food-name">butter</span>
+        <span class="food-quantity">1 tbsp</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>538.5 kcal</td>
+        <td>472.0 kcal</td>
+        <td class="diff-over">
+          +66.5 kcal
+        </td>
+        <td style="color: #10b981">
+          🟢 85.9%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>10.5 g</td>
+        <td>26.0 g</td>
+        <td class="diff-under">
+          -15.5 g
+        </td>
+        <td style="color: #ef4444">
+          🟠 40.4%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>90.8 g</td>
+        <td>31.0 g</td>
+        <td class="diff-over">
+          +59.8 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>16.2 g</td>
+        <td>29.0 g</td>
+        <td class="diff-under">
+          -12.8 g
+        </td>
+        <td style="color: #ef4444">
+          🟠 55.7%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #2</h2>
+        <div class="overall-score" style="background: #991b1b">
+          🔴 Overall: 0.0%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800" alt="Meal 2" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> This appears to be a fresh mixed green salad with various toppings served alongside fresh orange juice. The salad contains typical salad ingredients with nuts and dried fruit for texture and flavor contrast.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 100.0%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 31.4%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 31.366285714285713%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 50.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 50%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (8 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">mixed green lettuce leaves</span>
+        <span class="food-quantity">2 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">shredded carrots</span>
+        <span class="food-quantity">0.5 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">red onion slices</span>
+        <span class="food-quantity">0.25 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">dried cranberries</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">walnut pieces</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">feta cheese cubes</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          70.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">fresh orange juice</span>
+        <span class="food-quantity">8 oz</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">orange slices</span>
+        <span class="food-quantity">2 piece</span>
+        <span class="food-confidence" style="color: #10b981">
+          100.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (4 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">grilled chicken breast</span>
+        <span class="food-quantity">6 oz</span>
+      </li>
+    
+      <li>
+        <span class="food-name">mixed salad greens</span>
+        <span class="food-quantity">2 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">cherry tomatoes</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">olive oil dressing</span>
+        <span class="food-quantity">2 tbsp</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>1448.7 kcal</td>
+        <td>447.0 kcal</td>
+        <td class="diff-over">
+          +1001.7 kcal
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>17.6 g</td>
+        <td>56.0 g</td>
+        <td class="diff-under">
+          -38.4 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 31.4%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>269.0 g</td>
+        <td>10.0 g</td>
+        <td class="diff-over">
+          +259.0 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>30.0 g</td>
+        <td>20.0 g</td>
+        <td class="diff-over">
+          +10.0 g
+        </td>
+        <td style="color: #ef4444">
+          🟠 50.0%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #3</h2>
+        <div class="overall-score" style="background: #991b1b">
+          🔴 Overall: 23.4%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800" alt="Meal 3" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> This appears to be a restaurant-style plated salmon dish with a cucumber-tomato relish on top, served over sautéed greens with a dark sauce. The presentation suggests fine dining preparation. Some ingredients in the relish may be difficult to distinguish precisely due to the dicing and lighting.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 100.0%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 78.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 78.00749625187407%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 64.5%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 64.4669387755102%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 70.4%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 70.35152380952381%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 99.1%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 99.09872%; background: #10b981"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (7 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">pan-seared salmon fillet</span>
+        <span class="food-quantity">4 oz</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">cucumber diced</span>
+        <span class="food-quantity">0.25 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">tomato diced</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          70.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">fresh dill</span>
+        <span class="food-quantity">1 tsp</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">sautéed spinach</span>
+        <span class="food-quantity">0.5 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">dark sauce or reduction</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          60.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">olive oil</span>
+        <span class="food-quantity">1 tsp</span>
+        <span class="food-confidence" style="color: #ef4444">
+          50.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (4 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">grilled salmon</span>
+        <span class="food-quantity">6 oz</span>
+      </li>
+    
+      <li>
+        <span class="food-name">brown rice</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">steamed broccoli</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">carrots</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>520.3 kcal</td>
+        <td>667.0 kcal</td>
+        <td class="diff-under">
+          -146.7 kcal
+        </td>
+        <td style="color: #f59e0b">
+          🟡 78.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>31.6 g</td>
+        <td>49.0 g</td>
+        <td class="diff-under">
+          -17.4 g
+        </td>
+        <td style="color: #f59e0b">
+          🟡 64.5%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>44.3 g</td>
+        <td>63.0 g</td>
+        <td class="diff-under">
+          -18.7 g
+        </td>
+        <td style="color: #f59e0b">
+          🟡 70.4%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>24.8 g</td>
+        <td>25.0 g</td>
+        <td class="diff-under">
+          -0.2 g
+        </td>
+        <td style="color: #10b981">
+          🟢 99.1%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #4</h2>
+        <div class="overall-score" style="background: #991b1b">
+          🔴 Overall: 16.0%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=800" alt="Meal 4" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> Image shows multiple bunches of fresh yellow bananas with some brown spots, typical of ripe bananas. The bananas appear to be displayed at a market or store. Estimated count is approximate due to overlapping bunches, but appears to be around 50 individual bananas across multiple hands/bunches.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 40.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 40%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 4066.7%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 100.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 100%; background: #10b981"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (1 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">fresh bananas</span>
+        <span class="food-quantity">50 pieces</span>
+        <span class="food-confidence" style="color: #10b981">
+          95.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (4 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">strawberries</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">blueberries</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">banana</span>
+        <span class="food-quantity">1 medium</span>
+      </li>
+    
+      <li>
+        <span class="food-name">greek yogurt</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>20800.0 kcal</td>
+        <td>296.0 kcal</td>
+        <td class="diff-over">
+          +20504.0 kcal
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>354.0 g</td>
+        <td>20.0 g</td>
+        <td class="diff-over">
+          +334.0 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>2435.0 g</td>
+        <td>56.0 g</td>
+        <td class="diff-over">
+          +2379.0 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>1060.0 g</td>
+        <td>0.0 g</td>
+        <td class="diff-over">
+          +1060.0 g
+        </td>
+        <td style="color: #10b981">
+          🟢 100.0%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #5</h2>
+        <div class="overall-score" style="background: #991b1b">
+          🔴 Overall: 0.0%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800" alt="Meal 5" class="meal-image" />
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 100.0%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (0 items)</h3>
+        <ul class="food-list ai-foods">
+  
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (4 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">oatmeal</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">blueberries</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">honey</span>
+        <span class="food-quantity">1 tbsp</span>
+      </li>
+    
+      <li>
+        <span class="food-name">almonds</span>
+        <span class="food-quantity">10 piece</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>0.0 kcal</td>
+        <td>341.0 kcal</td>
+        <td class="diff-under">
+          -341.0 kcal
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>0.0 g</td>
+        <td>10.0 g</td>
+        <td class="diff-under">
+          -10.0 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>0.0 g</td>
+        <td>58.0 g</td>
+        <td class="diff-under">
+          -58.0 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>0.0 g</td>
+        <td>10.0 g</td>
+        <td class="diff-under">
+          -10.0 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+          <div class="error-section">
+            <h3>⚠️ Errors</h3>
+            <ul>
+              <li>Failed to analyze meal image: No valid foods detected in image</li>
+            </ul>
+          </div>
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #6</h2>
+        <div class="overall-score" style="background: #ef4444">
+          🟠 Overall: 43.5%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800" alt="Meal 6" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> This appears to be a colorful Buddha bowl or grain bowl with fresh and cooked vegetables. The sweet potato appears to be roasted/cooked based on its appearance. All vegetables appear fresh and raw except for the chickpeas and sweet potato.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 40.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 40%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 46.7%
+      </div>
+      <div class="metric-subtitle">Avg Error: 53.3%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 46.666666666666664%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 45.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 45.04005006257824%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 83.3%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 83.26076923076921%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 69.1%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 69.09571428571428%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (9 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">sliced avocado</span>
+        <span class="food-quantity">0.5 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          95.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">cherry tomatoes on vine</span>
+        <span class="food-quantity">6 piece</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">cooked chickpeas</span>
+        <span class="food-quantity">0.3 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          85.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">diced sweet potato</span>
+        <span class="food-quantity">0.4 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">mixed salad greens</span>
+        <span class="food-quantity">1 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">shredded purple cabbage</span>
+        <span class="food-quantity">0.25 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          85.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">sliced watermelon radish</span>
+        <span class="food-quantity">3 slice</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">yellow bell pepper slices</span>
+        <span class="food-quantity">0.25 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          85.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">microgreens</span>
+        <span class="food-quantity">1 tbsp</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          75.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (6 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">quinoa</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">chickpeas</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">sweet potato</span>
+        <span class="food-quantity">1 medium</span>
+      </li>
+    
+      <li>
+        <span class="food-name">kale</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">avocado</span>
+        <span class="food-quantity">0.5 medium</span>
+      </li>
+    
+      <li>
+        <span class="food-name">tahini dressing</span>
+        <span class="food-quantity">2 tbsp</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>1238.1 kcal</td>
+        <td>799.0 kcal</td>
+        <td class="diff-over">
+          +439.1 kcal
+        </td>
+        <td style="color: #ef4444">
+          🟠 45.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>30.4 g</td>
+        <td>26.0 g</td>
+        <td class="diff-over">
+          +4.4 g
+        </td>
+        <td style="color: #10b981">
+          🟢 83.3%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>137.4 g</td>
+        <td>105.0 g</td>
+        <td class="diff-over">
+          +32.4 g
+        </td>
+        <td style="color: #f59e0b">
+          🟡 69.1%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>71.1 g</td>
+        <td>34.0 g</td>
+        <td class="diff-over">
+          +37.1 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #7</h2>
+        <div class="overall-score" style="background: #f59e0b">
+          🟡 Overall: 68.0%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800" alt="Meal 7" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> The pasta appears to be penne in a tomato-based sauce with what looks like ground meat. There's visible grated cheese on top and black pepper seasoning. The portion size appears to be a standard single serving.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 33.3%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 33.33333333333333%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 100.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 0.0%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 100%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 82.3%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 82.25425950196592%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 99.2%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 99.2%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 49.4%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 49.40425531914894%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 74.3%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 74.30000000000001%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (3 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">penne pasta with tomato meat sauce</span>
+        <span class="food-quantity">1.5 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">grated parmesan cheese</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">ground black pepper</span>
+        <span class="food-quantity">0.25 tsp</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          70.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (3 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">spaghetti</span>
+        <span class="food-quantity">2 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">ground beef sauce</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">parmesan cheese</span>
+        <span class="food-quantity">2 tbsp</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>627.6 kcal</td>
+        <td>763.0 kcal</td>
+        <td class="diff-under">
+          -135.4 kcal
+        </td>
+        <td style="color: #10b981">
+          🟢 82.3%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>41.7 g</td>
+        <td>42.0 g</td>
+        <td class="diff-under">
+          -0.3 g
+        </td>
+        <td style="color: #10b981">
+          🟢 99.2%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>46.4 g</td>
+        <td>94.0 g</td>
+        <td class="diff-under">
+          -47.6 g
+        </td>
+        <td style="color: #ef4444">
+          🟠 49.4%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>30.2 g</td>
+        <td>24.0 g</td>
+        <td class="diff-over">
+          +6.2 g
+        </td>
+        <td style="color: #f59e0b">
+          🟡 74.3%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #8</h2>
+        <div class="overall-score" style="background: #ef4444">
+          🟠 Overall: 40.3%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=800" alt="Meal 8" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> Classic avocado toast breakfast with soft-boiled egg. The bread appears to be a dense, seeded multigrain variety. The avocado is fanned and evenly sliced across both pieces of toast. The egg shows a perfectly runny yolk typical of soft-boiled preparation.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 28.6%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 28.571428571428577%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 41.7%
+      </div>
+      <div class="metric-subtitle">Avg Error: 58.3%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 41.666666666666664%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 54.5%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 54.45026178010471%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 84.1%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 84.0576923076923%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 93.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 92.97872340425532%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 68.1%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 68.08823529411765%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (3 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">multigrain seeded bread</span>
+        <span class="food-quantity">2 slice</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">sliced avocado</span>
+        <span class="food-quantity">0.5 medium avocado</span>
+        <span class="food-confidence" style="color: #10b981">
+          95.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">soft-boiled egg</span>
+        <span class="food-quantity">1 large egg</span>
+        <span class="food-confidence" style="color: #10b981">
+          95.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (4 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">whole grain bread</span>
+        <span class="food-quantity">2 slice</span>
+      </li>
+    
+      <li>
+        <span class="food-name">avocado</span>
+        <span class="food-quantity">1 medium</span>
+      </li>
+    
+      <li>
+        <span class="food-name">poached egg</span>
+        <span class="food-quantity">2 large</span>
+      </li>
+    
+      <li>
+        <span class="food-name">cherry tomatoes</span>
+        <span class="food-quantity">0.25 cup</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>312.0 kcal</td>
+        <td>573.0 kcal</td>
+        <td class="diff-under">
+          -261.0 kcal
+        </td>
+        <td style="color: #ef4444">
+          🟠 54.5%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>21.9 g</td>
+        <td>26.0 g</td>
+        <td class="diff-under">
+          -4.1 g
+        </td>
+        <td style="color: #10b981">
+          🟢 84.1%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>43.7 g</td>
+        <td>47.0 g</td>
+        <td class="diff-under">
+          -3.3 g
+        </td>
+        <td style="color: #10b981">
+          🟢 93.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>23.1 g</td>
+        <td>34.0 g</td>
+        <td class="diff-under">
+          -10.9 g
+        </td>
+        <td style="color: #f59e0b">
+          🟡 68.1%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #9</h2>
+        <div class="overall-score" style="background: #991b1b">
+          🔴 Overall: 28.9%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f?w=800" alt="Meal 9" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> This appears to be a colorful Buddha bowl or power bowl with a variety of fresh vegetables, protein sources, and garnishes arranged in sections. The tofu appears to be seasoned and grilled with visible char marks.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 25.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 25%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #ef4444">
+        🟠 50.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 50.0%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 50%; background: #ef4444"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 13.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 13.002868852459004%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #f59e0b">
+        🟡 68.1%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 68.09780487804878%; background: #f59e0b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 92.1%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 92.14846874999999%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (9 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">grilled tofu cubes</span>
+        <span class="food-quantity">4 oz</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">hard-boiled eggs</span>
+        <span class="food-quantity">2 piece</span>
+        <span class="food-confidence" style="color: #10b981">
+          100.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">red bell pepper slices</span>
+        <span class="food-quantity">0.5 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          95.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">purple cabbage shredded</span>
+        <span class="food-quantity">0.5 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">mixed salad greens</span>
+        <span class="food-quantity">1 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          85.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">edamame beans</span>
+        <span class="food-quantity">0.25 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">corn kernels</span>
+        <span class="food-quantity">0.25 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          85.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">cucumber diced</span>
+        <span class="food-quantity">0.25 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">green onions chopped</span>
+        <span class="food-quantity">1 tbsp</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          70.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (7 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">sushi rice</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">raw tuna</span>
+        <span class="food-quantity">4 oz</span>
+      </li>
+    
+      <li>
+        <span class="food-name">edamame</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">cucumber</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">seaweed salad</span>
+        <span class="food-quantity">0.5 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">soy sauce</span>
+        <span class="food-quantity">1 tbsp</span>
+      </li>
+    
+      <li>
+        <span class="food-name">sesame seeds</span>
+        <span class="food-quantity">1 tsp</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>912.5 kcal</td>
+        <td>488.0 kcal</td>
+        <td class="diff-over">
+          +424.5 kcal
+        </td>
+        <td style="color: #991b1b">
+          🔴 13.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>54.1 g</td>
+        <td>41.0 g</td>
+        <td class="diff-over">
+          +13.1 g
+        </td>
+        <td style="color: #f59e0b">
+          🟡 68.1%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>59.0 g</td>
+        <td>64.0 g</td>
+        <td class="diff-under">
+          -5.0 g
+        </td>
+        <td style="color: #10b981">
+          🟢 92.1%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>56.0 g</td>
+        <td>8.0 g</td>
+        <td class="diff-over">
+          +48.0 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+
+    <div class="result-card">
+      <div class="result-header">
+        <h2>Meal #10</h2>
+        <div class="overall-score" style="background: #991b1b">
+          🔴 Overall: 0.0%
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="image-section">
+          <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800" alt="Meal 10" class="meal-image" />
+          
+            <div class="ai-notes">
+              <strong>AI Notes:</strong> This appears to be a classic chicken fried rice dish with visible rice grains, chicken pieces, peas, and what looks like scrambled egg mixed throughout. The carrots and scallions appear to be fresh garnishes. There are also some spice bowls visible in the background but their contents are not clearly identifiable.
+            </div>
+          
+        </div>
+
+        <div class="metrics-grid">
+          
+    <div class="metric-card">
+      <div class="metric-label">Food Detection (F1)</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Precision & Recall</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Quantity Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      <div class="metric-subtitle">Avg Error: 100.0%</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Calorie Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Protein Accuracy</div>
+      <div class="metric-value" style="color: #10b981">
+        🟢 87.4%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 87.36854838709678%; background: #10b981"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Carbs Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+          
+    <div class="metric-card">
+      <div class="metric-label">Fat Accuracy</div>
+      <div class="metric-value" style="color: #991b1b">
+        🔴 0.0%
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%; background: #991b1b"></div>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>🍽️ Food Items Detected</h3>
+          
+    <div class="food-comparison">
+      <div class="comparison-column">
+        <h3>🤖 AI Detected (6 items)</h3>
+        <ul class="food-list ai-foods">
+  
+      <li>
+        <span class="food-name">chicken fried rice</span>
+        <span class="food-quantity">1.5 cup</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">cooked chicken pieces</span>
+        <span class="food-quantity">2 oz</span>
+        <span class="food-confidence" style="color: #10b981">
+          80.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">green peas</span>
+        <span class="food-quantity">2 tbsp</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">scrambled eggs</span>
+        <span class="food-quantity">1 large egg</span>
+        <span class="food-confidence" style="color: #f59e0b">
+          70.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">sliced carrots</span>
+        <span class="food-quantity">3 piece</span>
+        <span class="food-confidence" style="color: #10b981">
+          95.0%
+        </span>
+      </li>
+    
+      <li>
+        <span class="food-name">green onion scallions</span>
+        <span class="food-quantity">2 piece</span>
+        <span class="food-confidence" style="color: #10b981">
+          90.0%
+        </span>
+      </li>
+    
+        </ul>
+      </div>
+      <div class="comparison-column">
+        <h3>✅ Ground Truth (4 items)</h3>
+        <ul class="food-list ground-truth-foods">
+  
+      <li>
+        <span class="food-name">chicken breast</span>
+        <span class="food-quantity">6 oz</span>
+      </li>
+    
+      <li>
+        <span class="food-name">mixed vegetables</span>
+        <span class="food-quantity">2 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">white rice</span>
+        <span class="food-quantity">1 cup</span>
+      </li>
+    
+      <li>
+        <span class="food-name">stir fry sauce</span>
+        <span class="food-quantity">2 tbsp</span>
+      </li>
+    
+        </ul>
+      </div>
+    </div>
+  
+        </div>
+
+        <div class="detailed-section">
+          <h3>📊 Nutrition Breakdown</h3>
+          
+    <div class="nutrition-comparison">
+      <table class="nutrition-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>AI Detected</th>
+            <th>Ground Truth</th>
+            <th>Difference</th>
+            <th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+      <tr>
+        <td><strong>Calories</strong></td>
+        <td>1572.7 kcal</td>
+        <td>614.0 kcal</td>
+        <td class="diff-over">
+          +958.7 kcal
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Protein</strong></td>
+        <td>54.2 g</td>
+        <td>62.0 g</td>
+        <td class="diff-under">
+          -7.8 g
+        </td>
+        <td style="color: #10b981">
+          🟢 87.4%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Carbs</strong></td>
+        <td>146.4 g</td>
+        <td>71.0 g</td>
+        <td class="diff-over">
+          +75.4 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+      <tr>
+        <td><strong>Fat</strong></td>
+        <td>80.2 g</td>
+        <td>7.0 g</td>
+        <td class="diff-over">
+          +73.2 g
+        </td>
+        <td style="color: #991b1b">
+          🔴 0.0%
+        </td>
+      </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  
+        </div>
+
+        
+      </div>
+    </div>
+  
+  </div>
+</body>
+</html>
+  
