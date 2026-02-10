@@ -8,11 +8,12 @@ import { successResponse, errorResponse, handleApiError } from '@/lib/api-respon
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const meal = await prisma.meal.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         foodItems: {
           include: {
@@ -43,14 +44,15 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
 
     // Check if meal exists
     const existingMeal = await prisma.meal.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingMeal) {
@@ -59,7 +61,7 @@ export async function PATCH(
 
     // Update meal
     const updatedMeal = await prisma.meal.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         description: body.description,
         calories: body.calories,
@@ -95,12 +97,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     // Check if meal exists
     const existingMeal = await prisma.meal.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingMeal) {
@@ -109,10 +113,10 @@ export async function DELETE(
 
     // Delete meal and cascade to mealFoodItems (configured in schema)
     await prisma.meal.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
-    return successResponse({ deleted: true, id: params.id });
+    return successResponse({ deleted: true, id });
   } catch (error) {
     return handleApiError(error);
   }
