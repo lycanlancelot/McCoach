@@ -56,13 +56,31 @@ Respond ONLY with valid JSON in this exact format:
  */
 async function imageUrlToBase64(url: string): Promise<{ data: string; mediaType: string }> {
   try {
+    // Validate URL format
+    try {
+      new URL(url);
+    } catch {
+      throw new Error('Invalid URL format');
+    }
+
     const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+
+    // Validate it's an image
+    if (!contentType.startsWith('image/')) {
+      throw new Error(`URL does not point to an image (content-type: ${contentType})`);
+    }
+
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const base64 = buffer.toString('base64');
 
-    // Detect media type from response headers or default to jpeg
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    // Detect media type from response headers
     const mediaType = contentType.includes('png')
       ? 'image/png'
       : contentType.includes('webp')
@@ -73,7 +91,8 @@ async function imageUrlToBase64(url: string): Promise<{ data: string; mediaType:
 
     return { data: base64, mediaType };
   } catch (error) {
-    throw new Error(`Failed to fetch image from URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Failed to fetch image from URL: ${errorMessage}`);
   }
 }
 
