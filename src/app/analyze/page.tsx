@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { analyzeMealImage, type MealAnalysisResult } from '@/lib/api-client';
+import type { MealAnalysisResult } from '@/lib/api-client';
 import NavBar from '@/components/NavBar';
 
 export default function AnalyzePage() {
@@ -46,27 +46,37 @@ export default function AnalyzePage() {
       setIsAnalyzing(true);
 
       let analysisResult: MealAnalysisResult;
+      let fileToAnalyze = imageFile;
 
-      if (imageFile) {
-        // Upload file and analyze
-        const formData = new FormData();
-        formData.append('image', imageFile);
-
-        const uploadResponse = await fetch('/api/meals/analyze', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to analyze image');
+      // If we have a URL instead of a file, fetch it and convert to blob
+      if (!imageFile && imageUrl) {
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+          throw new Error('Failed to fetch image from URL');
         }
-
-        const data = await uploadResponse.json();
-        analysisResult = data.data;
-      } else {
-        // Analyze from URL
-        analysisResult = await analyzeMealImage({ imageUrl });
+        const blob = await response.blob();
+        fileToAnalyze = new File([blob], 'image.jpg', { type: blob.type });
       }
+
+      if (!fileToAnalyze) {
+        throw new Error('No image provided');
+      }
+
+      // Upload file and analyze
+      const formData = new FormData();
+      formData.append('image', fileToAnalyze);
+
+      const uploadResponse = await fetch('/api/meals/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to analyze image');
+      }
+
+      const data = await uploadResponse.json();
+      analysisResult = data.data;
 
       setResult(analysisResult);
     } catch (err) {
