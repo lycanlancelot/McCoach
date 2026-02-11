@@ -43,7 +43,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    const parsedItems = items.map((item) => ({
+    const parsedItems = items.map((item: typeof items[number]) => ({
       id: item.id,
       imageUrl: item.imageUrl,
       groundTruth: JSON.parse(item.groundTruth),
