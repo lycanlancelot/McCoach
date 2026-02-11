@@ -105,7 +105,8 @@ export default function Home() {
       setAnalysisResult(null);
     } catch (err) {
       console.error('Failed to save meal:', err);
-      setError('Failed to save meal. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to save meal: ${errorMessage}`);
     }
   };
 
