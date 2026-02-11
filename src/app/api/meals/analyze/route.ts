@@ -81,11 +81,18 @@ export async function POST(request: NextRequest) {
 
     // Save image to filesystem (works for both uploads and URLs)
     imageUrl = await saveMealImage(fileToSave);
-    fullImageUrl = `${request.nextUrl.origin}${imageUrl}`;
 
-    // Analyze image with Claude Vision API
+    // Convert image to base64 for Claude Vision API
+    // This avoids HTTP fetch issues when deployed
+    const arrayBuffer = await fileToSave.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString('base64');
+    const mimeType = fileToSave.type || 'image/jpeg';
+    const imageBase64 = `data:${mimeType};base64,${base64}`;
+
+    // Analyze image with Claude Vision API using base64
     const aiAnalysis = await analyzeMealImage({
-      imageUrl: fullImageUrl,
+      imageBase64,
     });
 
     if (!aiAnalysis.foods || aiAnalysis.foods.length === 0) {
