@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
+import type { Prisma } from '@prisma/client';
 
 /**
  * POST /api/meals
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create meal with associated food items in a transaction
-    const meal = await prisma.$transaction(async (tx) => {
+    const meal = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Create the meal
       const createdMeal = await tx.meal.create({
         data: {
