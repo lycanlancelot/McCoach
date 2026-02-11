@@ -32,26 +32,56 @@ export async function POST(request: NextRequest) {
 
     let fullImageUrl: string;
     let imageUrl: string;
+    let fileToSave: File;
 
     if (imageFile) {
       // File upload path
-      // Validate image file
-      const validation = validateImageFile(imageFile);
-      if (!validation.valid) {
-        const errorMessages = validation.errors.map((e) => e.message).join(', ');
-        return errorResponse(`Image validation failed: ${errorMessages}`, 400);
+      fileToSave = imageFile;
+    } else if (imageUrlParam) {
+      // URL path - fetch the image and convert to File
+      try {
+        // Validate URL format
+        new URL(imageUrlParam);
+      } catch {
+        return errorResponse('Invalid URL format', 400);
       }
 
-      // Save image to filesystem
-      imageUrl = await saveMealImage(imageFile);
-      fullImageUrl = `${request.nextUrl.origin}${imageUrl}`;
-    } else if (imageUrlParam) {
-      // URL path - use the provided URL directly
-      fullImageUrl = imageUrlParam;
-      imageUrl = imageUrlParam;
+      // Fetch the image from the URL
+      const response = await fetch(imageUrlParam);
+      if (!response.ok) {
+        return errorResponse(
+          `Failed to fetch image from URL: HTTP ${response.status} ${response.statusText}`,
+          400
+        );
+      }
+
+      // Check content type
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.startsWith('image/')) {
+        return errorResponse(
+          `URL does not point to an image (content-type: ${contentType})`,
+          400
+        );
+      }
+
+      // Convert to File
+      const blob = await response.blob();
+      const filename = imageUrlParam.split('/').pop() || 'image.jpg';
+      fileToSave = new File([blob], filename, { type: contentType });
     } else {
       return errorResponse('No image file or URL provided', 400);
     }
+
+    // Validate image file
+    const validation = validateImageFile(fileToSave);
+    if (!validation.valid) {
+      const errorMessages = validation.errors.map((e) => e.message).join(', ');
+      return errorResponse(`Image validation failed: ${errorMessages}`, 400);
+    }
+
+    // Save image to filesystem (works for both uploads and URLs)
+    imageUrl = await saveMealImage(fileToSave);
+    fullImageUrl = `${request.nextUrl.origin}${imageUrl}`;
 
     // Analyze image with Claude Vision API
     const aiAnalysis = await analyzeMealImage({
