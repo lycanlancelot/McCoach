@@ -17,6 +17,10 @@ COPY . .
 # Generate Prisma Client before building
 RUN npx prisma generate
 
+# Set dummy environment variables for build (actual values set at runtime)
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ENV ANTHROPIC_API_KEY="dummy-key-for-build"
+
 RUN npm run build
 
 # Production image, copy all the files and run next
