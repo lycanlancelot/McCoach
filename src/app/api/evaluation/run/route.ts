@@ -5,7 +5,7 @@ import { searchAndCacheFoods } from '@/lib/usda-client';
 import { calculateNutritionForServing, convertToGrams } from '@/lib/nutrition-calculator';
 import { calculateMetrics, calculateNutritionAccuracy, aggregateMetrics } from '@/lib/evaluation/metrics';
 import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
-import type { BenchmarkItem, EvaluationResult } from '@/types/evaluation';
+import type { EvaluationResult } from '@/types/evaluation';
 
 /**
  * POST /api/evaluation/run
@@ -189,7 +189,7 @@ export async function GET() {
       take: 10,
     });
 
-    const runsWithParsedData = runs.map((run) => ({
+    const runsWithParsedData = runs.map((run: typeof runs[number]) => ({
       id: run.id,
       modelVersion: run.modelVersion,
       promptVersion: run.promptVersion,

@@ -1,5 +1,4 @@
 import type { NutritionData } from '@/types/usda';
-import type { FoodItem } from '@prisma/client';
 
 /**
  * Serving size information for a food item
@@ -11,9 +10,22 @@ export interface ServingInfo {
 }
 
 /**
+ * Nutrition values for a food item (per 100g from USDA)
+ */
+export interface FoodNutrition {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber?: number | null;
+  sugar?: number | null;
+  sodium?: number | null;
+}
+
+/**
  * Food item with serving information
  */
-export interface FoodItemWithServing extends FoodItem {
+export interface FoodItemWithServing extends FoodNutrition {
   serving: ServingInfo;
 }
 
@@ -22,7 +34,7 @@ export interface FoodItemWithServing extends FoodItem {
  * USDA data is per 100g, so we scale based on actual grams consumed
  */
 export function calculateNutritionForServing(
-  foodItem: FoodItem,
+  foodItem: FoodNutrition,
   serving: ServingInfo
 ): NutritionData {
   const scaleFactor = serving.grams / 100;
@@ -73,9 +85,9 @@ export function calculateTotalNutrition(items: FoodItemWithServing[]): Nutrition
     protein: Math.round(totals.protein * 10) / 10,
     carbs: Math.round(totals.carbs * 10) / 10,
     fat: Math.round(totals.fat * 10) / 10,
-    fiber: totals.fiber > 0 ? Math.round(totals.fiber * 10) / 10 : undefined,
-    sugar: totals.sugar > 0 ? Math.round(totals.sugar * 10) / 10 : undefined,
-    sodium: totals.sodium > 0 ? Math.round(totals.sodium) : undefined,
+    fiber: (totals.fiber ?? 0) > 0 ? Math.round((totals.fiber ?? 0) * 10) / 10 : undefined,
+    sugar: (totals.sugar ?? 0) > 0 ? Math.round((totals.sugar ?? 0) * 10) / 10 : undefined,
+    sodium: (totals.sodium ?? 0) > 0 ? Math.round(totals.sodium ?? 0) : undefined,
   };
 }
 
@@ -201,9 +213,9 @@ export function calculateDailyTotals(meals: NutritionData[]): NutritionData {
     protein: Math.round(totals.protein * 10) / 10,
     carbs: Math.round(totals.carbs * 10) / 10,
     fat: Math.round(totals.fat * 10) / 10,
-    fiber: totals.fiber > 0 ? Math.round(totals.fiber * 10) / 10 : undefined,
-    sugar: totals.sugar > 0 ? Math.round(totals.sugar * 10) / 10 : undefined,
-    sodium: totals.sodium > 0 ? Math.round(totals.sodium) : undefined,
+    fiber: (totals.fiber ?? 0) > 0 ? Math.round((totals.fiber ?? 0) * 10) / 10 : undefined,
+    sugar: (totals.sugar ?? 0) > 0 ? Math.round((totals.sugar ?? 0) * 10) / 10 : undefined,
+    sodium: (totals.sodium ?? 0) > 0 ? Math.round(totals.sodium ?? 0) : undefined,
   };
 }
 
