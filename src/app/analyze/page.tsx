@@ -45,38 +45,32 @@ export default function AnalyzePage() {
     try {
       setIsAnalyzing(true);
 
-      let analysisResult: MealAnalysisResult;
-      let fileToAnalyze = imageFile;
+      // Prepare form data
+      const formData = new FormData();
 
-      // If we have a URL instead of a file, fetch it and convert to blob
-      if (!imageFile && imageUrl) {
-        const response = await fetch(imageUrl);
-        if (!response.ok) {
-          throw new Error('Failed to fetch image from URL');
-        }
-        const blob = await response.blob();
-        fileToAnalyze = new File([blob], 'image.jpg', { type: blob.type });
-      }
-
-      if (!fileToAnalyze) {
+      if (imageFile) {
+        // File upload
+        formData.append('image', imageFile);
+      } else if (imageUrl) {
+        // URL input - let the server fetch it (avoids CORS issues)
+        formData.append('imageUrl', imageUrl);
+      } else {
         throw new Error('No image provided');
       }
 
-      // Upload file and analyze
-      const formData = new FormData();
-      formData.append('image', fileToAnalyze);
-
+      // Send to API for analysis
       const uploadResponse = await fetch('/api/meals/analyze', {
         method: 'POST',
         body: formData,
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to analyze image');
+        const errorData = await uploadResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to analyze image');
       }
 
       const data = await uploadResponse.json();
-      analysisResult = data.data;
+      const analysisResult = data.data;
 
       setResult(analysisResult);
     } catch (err) {

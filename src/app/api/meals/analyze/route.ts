@@ -20,7 +20,7 @@ interface FoodItemWithNutrition extends DetectedFood {
  * POST /api/meals/analyze
  * Upload meal image, analyze with AI, and lookup nutrition data
  *
- * Request: multipart/form-data with 'image' file
+ * Request: multipart/form-data with 'image' file OR 'imageUrl' field
  * Response: AI analysis results + nutrition data for each food + totals
  */
 export async function POST(request: NextRequest) {
@@ -28,23 +28,30 @@ export async function POST(request: NextRequest) {
     // Parse multipart form data
     const formData = await request.formData();
     const imageFile = formData.get('image') as File | null;
+    const imageUrlParam = formData.get('imageUrl') as string | null;
 
-    if (!imageFile) {
-      return errorResponse('No image file provided', 400);
+    let fullImageUrl: string;
+    let imageUrl: string;
+
+    if (imageFile) {
+      // File upload path
+      // Validate image file
+      const validation = validateImageFile(imageFile);
+      if (!validation.valid) {
+        const errorMessages = validation.errors.map((e) => e.message).join(', ');
+        return errorResponse(`Image validation failed: ${errorMessages}`, 400);
+      }
+
+      // Save image to filesystem
+      imageUrl = await saveMealImage(imageFile);
+      fullImageUrl = `${request.nextUrl.origin}${imageUrl}`;
+    } else if (imageUrlParam) {
+      // URL path - use the provided URL directly
+      fullImageUrl = imageUrlParam;
+      imageUrl = imageUrlParam;
+    } else {
+      return errorResponse('No image file or URL provided', 400);
     }
-
-    // Validate image file
-    const validation = validateImageFile(imageFile);
-    if (!validation.valid) {
-      const errorMessages = validation.errors.map((e) => e.message).join(', ');
-      return errorResponse(`Image validation failed: ${errorMessages}`, 400);
-    }
-
-    // Save image to filesystem
-    const imageUrl = await saveMealImage(imageFile);
-
-    // Get full URL for Claude Vision (needs accessible URL)
-    const fullImageUrl = `${request.nextUrl.origin}${imageUrl}`;
 
     // Analyze image with Claude Vision API
     const aiAnalysis = await analyzeMealImage({
